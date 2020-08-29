@@ -1,7 +1,14 @@
-import React from "react";
+import React, { Fragment } from "react";
+import Circle from "./shapes/Circle";
+import Rectangle from "./shapes/Rectangle";
 
 function App() {
-  return <h2>Hello</h2>;
+  return (
+    <Fragment>
+      <Circle />
+      <Rectangle />
+    </Fragment>
+  );
 }
 
 export default App;
