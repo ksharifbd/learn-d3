@@ -10,11 +10,16 @@ const Circle = () => {
       width: 400,
     });
 
-    svg
+    const data = [25, 20, 10, 12, 15];
+
+    let circles = svg.selectAll("circle").data(data);
+
+    circles
+      .enter()
       .append("circle")
-      .attr("cx", 200)
-      .attr("cy", 200)
-      .attr("r", 100)
+      .attr("cx", (data, index) => index * 50 + 25)
+      .attr("cy", 25)
+      .attr("r", (data) => data)
       .attr("fill", "blue");
   }, []);
 
