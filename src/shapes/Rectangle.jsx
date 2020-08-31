@@ -8,12 +8,12 @@ const Reactangle = () => {
   useEffect(() => {
     (async () => {
       const svg = appendSvg(rectAreaElement.current, {
-        height: 400,
-        width: 400,
+        height: 300,
+        width: 300,
       });
 
       const data = await d3.json(
-        "https://run.mocky.io/v3/54a05b08-9c02-4143-b206-a6f8d149522e",
+        "https://5f4d0702eeec51001608e7a7.mockapi.io/api/learn-d3/products",
         {
           headers: {
             "Content-Type": "application/json",
@@ -24,12 +24,16 @@ const Reactangle = () => {
 
       let rects = svg.selectAll("rect").data(data);
 
+      const yScaleLienear = d3.scaleLinear().domain([0, 1000]).range([0, 200]);
+
+      console.log(yScaleLienear);
+
       rects
         .enter()
         .append("rect")
         .attr("x", (data, index) => index * 50 + 25)
         .attr("y", 20)
-        .attr("height", ({ height }) => Number(height) / 2)
+        .attr("height", ({ price }) => yScaleLienear(Number(price)))
         .attr("width", 20)
         .attr("fill", "grey");
     })();
