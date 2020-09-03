@@ -12,7 +12,7 @@ const Reactangle = () => {
         width: 300,
       });
 
-      const data = await d3.json(
+      const products = await d3.json(
         "https://5f4d0702eeec51001608e7a7.mockapi.io/api/learn-d3/products",
         {
           headers: {
@@ -22,24 +22,16 @@ const Reactangle = () => {
         }
       );
 
-      let rects = svg.selectAll("rect").data(data);
+      let rects = svg.selectAll("rect").data(products);
 
-      const yScale = d3.scaleLinear().domain([0, 1000]).range([0, 200]);
+      const yScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(products, ({ price }) => price)])
+        .range([0, 200]);
 
       const xScale = d3
         .scaleBand()
-        .domain([
-          "Intelligent Metal Chair",
-          "Small Fresh Hat",
-          "Practical Soft Gloves",
-          "Refined Rubber Sausages",
-          "Small Frozen Table",
-          "Unbranded Granite Shoes",
-          "Handcrafted Metal Chicken",
-          "Incredible Fresh Chips",
-          "Awesome Cotton Bacon",
-          "Generic Concrete Mouse",
-        ])
+        .domain(products.map(({ productName }) => productName))
         .range([0, 300])
         .paddingInner(0.3)
         .paddingOuter(0.2);
