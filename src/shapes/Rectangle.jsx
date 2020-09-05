@@ -41,7 +41,7 @@ const Reactangle = () => {
       const yScale = d3
         .scaleLinear()
         .domain([0, d3.max(products, ({ price }) => price)])
-        .range([0, height]);
+        .range([height, 0]);
 
       const xScale = d3
         .scaleBand()
@@ -90,8 +90,8 @@ const Reactangle = () => {
         .enter()
         .append("rect")
         .attr("x", ({ productName }) => xScale(productName))
-        .attr("y", 20)
-        .attr("height", ({ price }) => yScale(Number(price)))
+        .attr("y", ({ price }) => yScale(Number(price)) + 20)
+        .attr("height", ({ price }) => height - yScale(Number(price)))
         .attr("width", xScale.bandwidth)
         .attr("fill", "grey");
     })();
