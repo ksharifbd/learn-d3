@@ -5,7 +5,7 @@ import appendSvg from "../util/appendSvg";
 const margin = {
   top: 10,
   right: 10,
-  bottom: 100,
+  bottom: 150,
   left: 100,
 };
 
@@ -49,6 +49,42 @@ const Reactangle = () => {
         .range([0, width])
         .paddingInner(0.3)
         .paddingOuter(0.2);
+
+      const xAxisCall = d3.axisBottom(xScale);
+      g.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${height + 20})`)
+        .call(xAxisCall)
+        .selectAll("text")
+        .attr("y", "10")
+        .attr("x", "-5")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-40)");
+
+      const yAxisCall = d3.axisLeft(yScale);
+      g.append("g")
+        .attr("class", "y-axis")
+        .attr("transform", `translate(0, ${20})`)
+        .call(yAxisCall);
+
+      // X-axis label
+      g.append("text")
+        .attr("class", "x-axis-label")
+        .attr("x", width / 2)
+        .attr("y", height + 140)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .text("Products");
+
+      // Y-axis label
+      g.append("text")
+        .attr("class", "y-axis-label")
+        .attr("x", -(height / 2))
+        .attr("y", -60)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .text("Price (USD)");
 
       rects
         .enter()
