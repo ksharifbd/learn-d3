@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import appendSvg from "../util/appendSvg";
+import appendSvg from "../../util/appendSvg";
 
 const margin = {
   top: 10,
@@ -12,7 +12,7 @@ const margin = {
 const height = 400 - (margin.top + margin.bottom);
 const width = 600 - (margin.right + margin.left);
 
-const Reactangle = () => {
+const ProductPrice = () => {
   const rectAreaElement = useRef(null);
 
   useEffect(() => {
@@ -100,4 +100,4 @@ const Reactangle = () => {
   return <div ref={rectAreaElement} />;
 };
 
-export default Reactangle;
+export default ProductPrice;

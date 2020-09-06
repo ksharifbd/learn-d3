@@ -1,10 +1,10 @@
 import React from "react";
-import Rectangle from "./shapes/Rectangle";
+import ProductPrice from "./charts/bar/ProductPrice";
 
 function App() {
   return (
     <div style={{ display: "flex" }}>
-      <Rectangle />
+      <ProductPrice />
     </div>
   );
 }
