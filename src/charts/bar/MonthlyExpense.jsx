@@ -44,7 +44,7 @@ const MonthlyExpense = () => {
       const yScale = d3
         .scaleLinear()
         .domain([0, d3.max(expenses, ({ expense }) => Number(expense))])
-        .range([0, scaleHeight]);
+        .range([scaleHeight, 0]);
 
       const xScale = d3
         .scaleBand()
@@ -53,12 +53,30 @@ const MonthlyExpense = () => {
         .paddingInner(0.2)
         .paddingOuter(0.2);
 
+      // x axis tick
+      const xAxisCall = d3.axisBottom(xScale);
+      g.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${scaleHeight})`)
+        .call(xAxisCall)
+        .selectAll("text")
+        .attr("y", "10")
+        .attr("x", "-10")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-40)");
+
+      const yAxisCall = d3.axisLeft(yScale);
+      g.append("g").attr("class", "y-axis").call(yAxisCall);
+
       rects
         .enter()
         .append("rect")
         .attr("x", ({ month }) => Math.floor(xScale(month)))
         .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
-        .attr("height", ({ expense }) => Math.floor(yScale(Number(expense))))
+        .attr(
+          "height",
+          ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
+        )
         .attr("width", xScale.bandwidth)
         .attr("fill", "orange");
     })();
