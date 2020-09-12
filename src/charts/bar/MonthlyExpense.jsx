@@ -20,7 +20,7 @@ const MonthlyExpense = () => {
 
   useEffect(() => {
     (async () => {
-      const expenses = await d3.json(
+      const expensesFromApi = await d3.json(
         "https://5f4d0702eeec51001608e7a7.mockapi.io/api/learn-d3/expenses",
         {
           headers: {
@@ -39,46 +39,60 @@ const MonthlyExpense = () => {
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-      const rects = g.selectAll("rect").data(expenses);
+      const rects = g.selectAll("rect").data(expensesFromApi);
 
-      const yScale = d3
-        .scaleLinear()
-        .domain([0, d3.max(expenses, ({ expense }) => Number(expense))])
-        .range([scaleHeight, 0]);
+      const yScale = d3.scaleLinear().range([scaleHeight, 0]);
 
       const xScale = d3
         .scaleBand()
-        .domain(expenses.map(({ month }) => month))
+
         .range([0, scaleWidth])
         .paddingInner(0.2)
         .paddingOuter(0.2);
 
-      // x axis tick
-      const xAxisCall = d3.axisBottom(xScale);
-      g.append("g")
+      const xAxisGroup = g
+        .append("g")
         .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${scaleHeight})`)
-        .call(xAxisCall)
-        .selectAll("text")
-        .attr("y", "10")
-        .attr("x", "-10")
-        .attr("text-anchor", "end")
-        .attr("transform", "rotate(-40)");
+        .attr("transform", `translate(0, ${scaleHeight})`);
 
-      const yAxisCall = d3.axisLeft(yScale);
-      g.append("g").attr("class", "y-axis").call(yAxisCall);
+      const yAxisGroup = g.append("g").attr("class", "y-axis");
 
-      rects
-        .enter()
-        .append("rect")
-        .attr("x", ({ month }) => Math.floor(xScale(month)))
-        .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
-        .attr(
-          "height",
-          ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
-        )
-        .attr("width", xScale.bandwidth)
-        .attr("fill", "orange");
+      const update = (expenses) => {
+        yScale.domain([0, d3.max(expenses, ({ expense }) => Number(expense))]);
+
+        xScale.domain(expenses.map(({ month }) => month));
+
+        // x axis tick
+        const xAxisCall = d3.axisBottom(xScale);
+        xAxisGroup
+          .call(xAxisCall)
+          .selectAll("text")
+          .attr("y", "10")
+          .attr("x", "-10")
+          .attr("text-anchor", "end")
+          .attr("transform", "rotate(-40)");
+
+        const yAxisCall = d3.axisLeft(yScale);
+        yAxisGroup.call(yAxisCall);
+
+        // rects
+        //   .enter()
+        //   .append("rect")
+        //   .attr("x", ({ month }) => Math.floor(xScale(month)))
+        //   .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
+        //   .attr(
+        //     "height",
+        //     ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
+        //   )
+        //   .attr("width", xScale.bandwidth)
+        //   .attr("fill", "orange");
+      };
+
+      d3.interval(() => {
+        update(expensesFromApi);
+      }, 1000);
+
+      update(expensesFromApi);
     })();
   }, []);
 
