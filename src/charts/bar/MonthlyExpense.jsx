@@ -118,6 +118,11 @@ const MonthlyExpense = () => {
         .remove();
 
       rects
+        .enter()
+        .append("rect")
+        .attr("y", yScale(0))
+        .attr("height", 0)
+        .merge(rects)
         .transition(d3.transition().duration())
         .attr("x", ({ month }) => Math.floor(xScale(month)))
         .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
@@ -127,21 +132,6 @@ const MonthlyExpense = () => {
         )
         .attr("width", xScale.bandwidth)
         .attr("fill", "orange");
-
-      rects
-        .enter()
-        .append("rect")
-        .attr("x", ({ month }) => Math.floor(xScale(month)))
-        .attr("y", yScale(0))
-        .attr("height", 0)
-        .attr("width", xScale.bandwidth)
-        .attr("fill", "orange")
-        .transition(d3.transition().duration())
-        .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
-        .attr(
-          "height",
-          ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
-        );
     }
   }, [expenses, lastThreeMonths]);
 
