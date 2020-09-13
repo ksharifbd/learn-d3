@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import * as d3 from "d3";
 import appendSvg from "../../util/appendSvg";
 
@@ -15,8 +15,22 @@ const margin = {
 const scaleHeight = svgHeight - (margin.top + margin.bottom);
 const scaleWidth = svgWidth - (margin.left + margin.right);
 
+let svg;
+let g;
+let yScale;
+let xScale;
+let yAxisGroup;
+let xAxisGroup;
+let xAxisLabel;
+
 const MonthlyExpense = () => {
   const chartAreaElement = useRef(null);
+  const [expenses, setExpenses] = useState([]);
+  const [lastThreeMonths, setLastThreeMonths] = useState(false);
+
+  const toggleView = () => {
+    setLastThreeMonths((value) => !value);
+  };
 
   useEffect(() => {
     (async () => {
@@ -30,73 +44,117 @@ const MonthlyExpense = () => {
         }
       );
 
-      const svg = appendSvg(chartAreaElement.current, {
+      setExpenses(expensesFromApi);
+
+      svg = appendSvg(chartAreaElement.current, {
         height: svgHeight,
         width: svgWidth,
       });
 
-      const g = svg
+      g = svg
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-      const rects = g.selectAll("rect").data(expensesFromApi);
+      yScale = d3.scaleLinear().range([scaleHeight, 0]);
 
-      const yScale = d3.scaleLinear().range([scaleHeight, 0]);
-
-      const xScale = d3
+      xScale = d3
         .scaleBand()
-
         .range([0, scaleWidth])
         .paddingInner(0.2)
         .paddingOuter(0.2);
 
-      const xAxisGroup = g
+      xAxisGroup = g
         .append("g")
         .attr("class", "x-axis")
         .attr("transform", `translate(0, ${scaleHeight})`);
 
-      const yAxisGroup = g.append("g").attr("class", "y-axis");
+      yAxisGroup = g.append("g").attr("class", "y-axis");
 
-      const update = (expenses) => {
-        yScale.domain([0, d3.max(expenses, ({ expense }) => Number(expense))]);
-
-        xScale.domain(expenses.map(({ month }) => month));
-
-        // x axis tick
-        const xAxisCall = d3.axisBottom(xScale);
-        xAxisGroup
-          .call(xAxisCall)
-          .selectAll("text")
-          .attr("y", "10")
-          .attr("x", "-10")
-          .attr("text-anchor", "end")
-          .attr("transform", "rotate(-40)");
-
-        const yAxisCall = d3.axisLeft(yScale);
-        yAxisGroup.call(yAxisCall);
-
-        // rects
-        //   .enter()
-        //   .append("rect")
-        //   .attr("x", ({ month }) => Math.floor(xScale(month)))
-        //   .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
-        //   .attr(
-        //     "height",
-        //     ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
-        //   )
-        //   .attr("width", xScale.bandwidth)
-        //   .attr("fill", "orange");
-      };
-
-      d3.interval(() => {
-        update(expensesFromApi);
-      }, 1000);
-
-      update(expensesFromApi);
+      // X-axis label
+      xAxisLabel = g
+        .append("text")
+        .attr("class", "x-axis-label")
+        .attr("x", scaleWidth / 2)
+        .attr("y", scaleHeight + 75)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle");
     })();
   }, []);
 
-  return <div ref={chartAreaElement}></div>;
+  useEffect(() => {
+    if (expenses.length > 0) {
+      const lastThreeMonthsData = expenses.slice(-3);
+
+      const expenseData = lastThreeMonths ? lastThreeMonthsData : expenses;
+
+      yScale.domain([0, d3.max(expenseData, ({ expense }) => Number(expense))]);
+
+      xScale.domain(expenseData.map(({ month }) => month));
+
+      // x axis tick
+      const xAxisCall = d3.axisBottom(xScale);
+      xAxisGroup
+        .transition(d3.transition().duration())
+        .call(xAxisCall)
+        .selectAll("text")
+        .attr("y", "10")
+        .attr("x", "-10")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-40)");
+
+      const yAxisCall = d3.axisLeft(yScale);
+      yAxisGroup.transition(d3.transition().duration()).call(yAxisCall);
+
+      xAxisLabel.text(lastThreeMonths ? "Last 3 months" : "12 months");
+
+      const rects = g.selectAll("rect").data(expenseData, ({ month }) => month);
+
+      rects
+        .exit()
+        .attr("fill", "red")
+        .transition(d3.transition().duration())
+        .attr("height", 0)
+        .attr("y", yScale(0))
+        .remove();
+
+      rects
+        .transition(d3.transition().duration())
+        .attr("x", ({ month }) => Math.floor(xScale(month)))
+        .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
+        .attr(
+          "height",
+          ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
+        )
+        .attr("width", xScale.bandwidth)
+        .attr("fill", "orange");
+
+      rects
+        .enter()
+        .append("rect")
+        .attr("x", ({ month }) => Math.floor(xScale(month)))
+        .attr("y", yScale(0))
+        .attr("height", 0)
+        .attr("width", xScale.bandwidth)
+        .attr("fill", "orange")
+        .transition(d3.transition().duration())
+        .attr("y", ({ expense }) => Math.floor(yScale(Number(expense))))
+        .attr(
+          "height",
+          ({ expense }) => scaleHeight - Math.floor(yScale(Number(expense)))
+        );
+    }
+  }, [expenses, lastThreeMonths]);
+
+  return (
+    <div>
+      <div ref={chartAreaElement}></div>
+      <div style={{ textAlign: "center" }}>
+        <button onClick={toggleView}>{`See ${
+          lastThreeMonths ? "all month" : "last 3 months"
+        }`}</button>
+      </div>
+    </div>
+  );
 };
 
 export default MonthlyExpense;
