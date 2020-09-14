@@ -78,6 +78,16 @@ const MonthlyExpense = () => {
         .attr("y", scaleHeight + 75)
         .attr("font-size", "20px")
         .attr("text-anchor", "middle");
+
+      // Y-axis label
+      g.append("text")
+        .attr("class", "y-axis-label")
+        .attr("x", -(scaleHeight / 2))
+        .attr("y", -60)
+        .attr("font-size", "20px")
+        .attr("text-anchor", "middle")
+        .attr("transform", "rotate(-90)")
+        .text("Expense (BDT)");
     })();
   }, []);
 
