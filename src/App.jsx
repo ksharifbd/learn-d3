@@ -3,7 +3,7 @@ import MonthlyExpense from "./charts/bar/MonthlyExpense";
 
 function App() {
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", paddingTop: "2.5rem" }}>
       <MonthlyExpense />
     </div>
   );

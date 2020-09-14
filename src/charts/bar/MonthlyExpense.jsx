@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import * as d3 from "d3";
+import d3Tip from "d3-tip";
 import appendSvg from "../../util/appendSvg";
+import "../../styles/d3-tip.css";
 
 const svgHeight = 400;
 const svgWidth = 600;
@@ -14,6 +16,14 @@ const margin = {
 
 const scaleHeight = svgHeight - (margin.top + margin.bottom);
 const scaleWidth = svgWidth - (margin.left + margin.right);
+
+const tip = d3Tip()
+  .attr("class", "d3-tip")
+  .html((event, data) => {
+    return `
+    <p style="text-transform: capitalize;margin-bottom:5px;margin-top:0;">Month: ${data.month}</p>
+    <span>Expense: ${data.expense} BDT</span>`;
+  });
 
 let svg;
 let g;
@@ -54,6 +64,8 @@ const MonthlyExpense = () => {
       g = svg
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+      g.call(tip);
 
       yScale = d3.scaleLinear().range([scaleHeight, 0]);
 
@@ -132,6 +144,8 @@ const MonthlyExpense = () => {
         .append("rect")
         .attr("y", yScale(0))
         .attr("height", 0)
+        .on("mouseover", tip.show)
+        .on("mouseout", tip.hide)
         .merge(rects)
         .transition(d3.transition().duration())
         .attr("x", ({ month }) => Math.floor(xScale(month)))
